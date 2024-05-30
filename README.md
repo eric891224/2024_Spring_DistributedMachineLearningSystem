@@ -1,2 +1,2 @@
-# 2024_Spring_Distributed_Machine_Learning_System
+# 2024_Spring_DistributedMachineLearningSystem
 source code for final project
