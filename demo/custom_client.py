@@ -48,6 +48,7 @@ def load_datasets(num_clients: int):
 
 trainloaders, valloaders, testloader = load_datasets(NUM_CLIENTS)
 
+
 class Net(nn.Module):
     def __init__(self) -> None:
         super(Net, self).__init__()
@@ -118,6 +119,7 @@ def test(net, testloader):
     accuracy = correct / total
     return loss, accuracy
 
+
 class FlowerNumPyClient(fl.client.NumPyClient):
     def __init__(self, cid, net, trainloader, valloader):
         self.cid = cid
@@ -148,10 +150,11 @@ def numpyclient_fn(cid) -> FlowerNumPyClient:
     valloader = valloaders[int(cid)]
     return FlowerNumPyClient(cid, net, trainloader, valloader)
 
+
 # Specify client resources if you need GPU (defaults to 1 CPU and 0 GPU)
 client_resources = None
 if DEVICE.type == "cuda":
-    client_resources = {"num_gpus": 1}
+    client_resources = {"num_gpus": 1, "num_cpus": 8}
 
 # NumPyClient Subclass
 # fl.simulation.start_simulation(
@@ -161,9 +164,9 @@ if DEVICE.type == "cuda":
 #     client_resources=client_resources,
 # )
 
-'''
+"""
     Client Subclass
-'''
+"""
 from flwr.common import (
     Code,
     EvaluateIns,
@@ -247,6 +250,7 @@ def sparse_bytes_to_ndarray(tensor: bytes) -> NDArray:
         ndarray_deserialized = loader
     return cast(NDArray, ndarray_deserialized)
 
+
 class FlowerClient(fl.client.Client):
     def __init__(self, cid, net, trainloader, valloader):
         self.cid = cid
@@ -318,7 +322,8 @@ def client_fn(cid) -> FlowerClient:
     net = Net().to(DEVICE)
     trainloader = trainloaders[int(cid)]
     valloader = valloaders[int(cid)]
-    return FlowerClient(cid, net, trainloader, valloader)
+    return FlowerClient(cid, net, trainloader, valloader).to_client()
+
 
 # Server side
 from logging import WARNING
@@ -458,12 +463,13 @@ class FedSparse(FedAvg):
 
         return parameters_aggregated, metrics_aggregated
 
+
 strategy = FedSparse()
 
 fl.simulation.start_simulation(
     strategy=strategy,
     client_fn=client_fn,
-    num_clients=2,
+    num_clients=5,
     config=fl.server.ServerConfig(num_rounds=3),
     client_resources=client_resources,
 )

@@ -48,6 +48,7 @@ def load_datasets(num_clients: int):
 
 trainloaders, valloaders, testloader = load_datasets(NUM_CLIENTS)
 
+
 class Net(nn.Module):
     def __init__(self) -> None:
         super(Net, self).__init__()
@@ -118,6 +119,7 @@ def test(net, testloader):
     accuracy = correct / total
     return loss, accuracy
 
+
 class FlowerClient(fl.client.NumPyClient):
     def __init__(self, cid, net, trainloader, valloader):
         self.cid = cid
@@ -148,6 +150,7 @@ def client_fn(cid) -> FlowerClient:
     valloader = valloaders[int(cid)]
     return FlowerClient(cid, net, trainloader, valloader)
 
+
 # Specify client resources if you need GPU (defaults to 1 CPU and 0 GPU)
 client_resources = None
 if DEVICE.type == "cuda":
@@ -160,9 +163,9 @@ if DEVICE.type == "cuda":
 #     client_resources=client_resources,
 # )
 
-'''
+"""
     Build a strategy from scratch
-'''
+"""
 from typing import Callable, Union
 
 from flwr.common import (
@@ -181,10 +184,11 @@ from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 
-#   Overwrite the configure_fit method such that it passes a higher 
-# learning rate (potentially also other hyperparameters) to the optimizer 
+
+#   Overwrite the configure_fit method such that it passes a higher
+# learning rate (potentially also other hyperparameters) to the optimizer
 # of a fraction of the clients.
-#   We will keep the sampling of the clients as it is in FedAvg and then 
+#   We will keep the sampling of the clients as it is in FedAvg and then
 # change the configuration dictionary (one of the FitIns attributes)
 class FedCustom(fl.server.strategy.Strategy):
     def __init__(
@@ -314,6 +318,7 @@ class FedCustom(fl.server.strategy.Strategy):
         """Use a fraction of available clients for evaluation."""
         num_clients = int(num_available_clients * self.fraction_evaluate)
         return max(num_clients, self.min_evaluate_clients), self.min_available_clients
+
 
 fl.simulation.start_simulation(
     client_fn=client_fn,

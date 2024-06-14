@@ -180,7 +180,7 @@ def client_fn(cid) -> FlowerClient:
     net = Net().to(DEVICE)
     trainloader = trainloaders[int(cid)]
     valloader = valloaders[int(cid)]
-    return FlowerClient(cid, net, trainloader, valloader)
+    return FlowerClient(cid, net, trainloader, valloader).to_client()
 
 # Create an instance of the model and get the parameters
 params = get_parameters(Net())
